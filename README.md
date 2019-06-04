@@ -1,1 +1,1 @@
-# kyubey-timer-eos
+# kyubey-watcher-eos
