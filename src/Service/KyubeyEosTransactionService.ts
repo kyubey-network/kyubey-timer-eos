@@ -6,7 +6,7 @@ import { Injectable } from "@nestjs/common";
 export class KyubeyEosTransactionService {
     constructor(
         private readonly dfuseService: DfuseService
-    ) {}
+    ) { }
     HandlerTransfer(message: InboundMessage) {
         if (this.dfuseService.IsSomeAction(message, "transfer")) {
             const { from, to, quantity, memo } = message.data.trace.act.data

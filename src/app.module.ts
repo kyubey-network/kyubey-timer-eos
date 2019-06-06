@@ -1,21 +1,17 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { EosTransactionJob } from './Job/EosTransactionJob';
-import { ScheduleModule } from 'nest-schedule';
-import { DfuseService } from './Service/DfuseService';
-import { KyubeyEosTransactionService } from './Service/KyubeyEosTransactionService';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { SyncTranscationModule } from './Module/SyncTransactionModule';
 
 @Module({
   imports: [
-    ScheduleModule.register(),
+    TypeOrmModule.forRoot(),
+    SyncTranscationModule
   ],
   controllers: [AppController],
   providers: [
     AppService,
-    EosTransactionJob,
-    DfuseService,
-    KyubeyEosTransactionService
   ],
 })
 export class AppModule { }

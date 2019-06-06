@@ -1,10 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Module } from '@nestjs/common';
 
 import { createDfuseClient, InboundMessage, InboundMessageType, waitFor, DfuseClient, GetActionTracesMessageData, Stream, OnStreamMessage, SearchTransactionsResponse, SearchSortType, Action, dynamicMessageDispatcher, ActionTraceInboundMessage, ProgressInboundMessage } from "@dfuse/client"
 import { IncomingMessage } from "http"
 import nodeFetch from "node-fetch"
 import * as WebSocketClient from 'ws'
-import { async } from 'rxjs/internal/scheduler/async';
+import { KyubeyTransactionRepository } from 'src/Repository/KyubeyTransactionRepository';
+
 
 @Injectable()
 export class DfuseService {
@@ -13,7 +14,7 @@ export class DfuseService {
   private lastCommittedBlockNum: number = 0;
   private pendingActions: Action<KarmaTransfer>[] = []
   private committedActions: Action<KarmaTransfer>[] = []
-  constructor() {
+  constructor(private readonly kyubeyTransactionRepository: KyubeyTransactionRepository) {
     this.CreateDfuseClient()
   }
   private CreateDfuseClient() {
@@ -105,11 +106,12 @@ export class DfuseService {
     }
 
     console.log("Stream connected, ready to receive messages")
-    
+
     return this.stream;
   }
   private onListening = () => {
     console.log("Stream is now listening for action(s)")
+    this.kyubeyTransactionRepository.findAll();
   }
 
   private onProgress = (message: ProgressInboundMessage) => {
