@@ -5,7 +5,7 @@ import {BaseEntity,Column,Entity,Index,JoinColumn,JoinTable,ManyToMany,ManyToOne
 @Index("IX_DexBuyOrders_Time",["Time",])
 @Index("IX_DexBuyOrders_TokenId",["TokenId",])
 @Index("IX_DexBuyOrders_UnitPrice",["UnitPrice",])
-export class dexbuyorders {
+export class DexBuyOrder {
 
     @Column("int",{ 
         nullable:false,

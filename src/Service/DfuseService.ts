@@ -6,6 +6,7 @@ import nodeFetch from "node-fetch"
 import * as WebSocketClient from 'ws'
 import { KyubeyTransactionRepository } from 'src/Repository/KyubeyTransactionRepository';
 import { async } from 'rxjs/internal/scheduler/async';
+import { KyubeyEosTransactionService } from './KyubeyEosTransactionService';
 
 
 @Injectable()
@@ -15,7 +16,10 @@ export class DfuseService {
   private lastCommittedBlockNum: number = 0;
   private pendingActions: Action<KarmaTransfer>[] = []
   private committedActions: Action<KarmaTransfer>[] = []
-  constructor(private readonly kyubeyTransactionRepository: KyubeyTransactionRepository) {
+  constructor(
+    private readonly kyubeyTransactionRepository: KyubeyTransactionRepository,
+    private readonly kyubeyEosTransactionService: KyubeyEosTransactionService
+  ) {
     this.CreateDfuseClient()
   }
   private CreateDfuseClient() {
@@ -93,7 +97,7 @@ export class DfuseService {
         // is low traffic so you don't need to wait until next
         // action to commit all changes.
         with_progress: 10,
-        //start_block: -30
+        start_block: -100
       }
     )
 
@@ -129,12 +133,26 @@ export class DfuseService {
     //this.commit(block_id, 61006380)
   }
 
-  private onAction = (message: ActionTraceInboundMessage<KarmaTransfer>) => {
+  private onAction = (message: ActionTraceInboundMessage<any>) => {
     /**
      * Once a message from a block ahead of last committed block is seen,
      * commit all changes up to this point.
      */
-    const { block_id, block_num } = message.data
+    const { block_id, block_num, trx_id, trace } = message.data;
+
+    switch (trace.act.name) {
+      case "buyreceipt":
+        this.kyubeyEosTransactionService.HandlerBuyReceipt(trace.act.data.o, trx_id);
+        break;
+      case "sellreceipt":
+        break;
+      case "buymatch":
+        break;
+      case "sellmatch":
+        break;
+
+    }
+
     if (block_num > this.lastCommittedBlockNum) {
       console.log()
       console.log(
@@ -236,7 +254,12 @@ type KarmaTransfer = {
   from: string
   to: string
   quantity: string
-  memo: string
+  memo: string,
+  account: string,
+  ask: string,
+  bid: string,
+  id: number,
+  timestamp: number,
 }
 
 function printBlock(blockId: string, blockNum: number): string {

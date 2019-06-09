@@ -1,13 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { Cron, Interval, Timeout, NestSchedule } from 'nest-schedule';
 import { DfuseService } from 'src/Service/DfuseService';
-import { KyubeyEosTransactionService } from 'src/Service/KyubeyEosTransactionService';
+//import { KyubeyEosTransactionService } from 'src/Service/KyubeyEosTransactionService';
 
 @Injectable() // Only support SINGLETON scope
 export class EosTransactionJob extends NestSchedule {
     constructor(
         private readonly dfuseService: DfuseService,
-        private readonly kyubeyEosTransactionService: KyubeyEosTransactionService) {
+        //private readonly kyubeyEosTransactionService: KyubeyEosTransactionService
+        ) {
         super();
     }
     @Cron('0 0 2 * *', {
@@ -30,9 +31,10 @@ export class EosTransactionJob extends NestSchedule {
         //     console.log(resp);
         // })
 
-        this.dfuseService.GetActionStreamAsync({ accounts: "eosio.token|ethsidechain", receivers: "kyubeydex.bp" }, (message) => {
+        //this.dfuseService.GetActionStreamAsync({ accounts: "eosio.token|ethsidechain",/**  receivers: "kyubeydex.bp",*/action_names:"sellmatch|buyreceipt" }, (message) => {
+        this.dfuseService.GetActionStreamAsync({ accounts: "kyubeydex.bp",action_names: "sellmatch|buyreceipt" }, (message) => {
 
-            this.kyubeyEosTransactionService.HandlerTransfer(message);
+            //this.kyubeyEosTransactionService.HandlerTransfer(message);
 
         })
     }
