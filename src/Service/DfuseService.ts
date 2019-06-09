@@ -5,6 +5,7 @@ import { IncomingMessage } from "http"
 import nodeFetch from "node-fetch"
 import * as WebSocketClient from 'ws'
 import { KyubeyTransactionRepository } from 'src/Repository/KyubeyTransactionRepository';
+import { async } from 'rxjs/internal/scheduler/async';
 
 
 @Injectable()
@@ -81,6 +82,7 @@ export class DfuseService {
       action_trace: this.onAction,
       progress: this.onProgress
     })
+    let lastSyncBlockNo = await this.kyubeyTransactionRepository.getLastSyncBlockNo();
 
     this.stream = await this.dfuseClient.streamActionTraces(
       data,
@@ -90,7 +92,8 @@ export class DfuseService {
         // actions at least each 10 blocks. This is useful if your stream
         // is low traffic so you don't need to wait until next
         // action to commit all changes.
-        with_progress: 10
+        with_progress: 10,
+        //start_block: -30
       }
     )
 
@@ -109,9 +112,8 @@ export class DfuseService {
 
     return this.stream;
   }
-  private onListening = () => {
+  private onListening = async () => {
     console.log("Stream is now listening for action(s)")
-    this.kyubeyTransactionRepository.findAll();
   }
 
   private onProgress = (message: ProgressInboundMessage) => {
@@ -123,8 +125,8 @@ export class DfuseService {
      */
     console.log()
     console.log("Committing changes due to seeing a message from a progress message")
-    //this.commit(block_id, block_num)
-    this.commit(block_id, 61006380)
+    this.commit(block_id, block_num)
+    //this.commit(block_id, 61006380)
   }
 
   private onAction = (message: ActionTraceInboundMessage<KarmaTransfer>) => {
@@ -168,8 +170,8 @@ export class DfuseService {
      * at this block ensuring to never miss a single action.
      */
     console.log(`Marking stream up to block ${printBlock(blockId, blockNum)}`)
-    //this.ensureStream().mark({ atBlockNum: blockNum })
-    this.ensureStream().mark({ atBlockNum: 62007424 })
+    this.ensureStream().mark({ atBlockNum: blockNum })
+    //this.ensureStream().mark({ atBlockNum: 62007424 })
 
     /**
      * In a real-word production code, you would also need to persist the

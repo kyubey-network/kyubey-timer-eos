@@ -9,14 +9,22 @@ export class KyubeyTransactionRepository {
         @InjectRepository(Constant)
         private readonly constRepository: Repository<Constant>,
     ) { }
-
-    async findAll() {
-        try {
-            var rows = await this.constRepository.find();
-            console.log(rows);
+    async getLastSyncBlockNo() {
+        let val = await this.GetDbConst("sync_block_no");
+        return parseInt(val);
+    }
+    private async GetDbConst(key: string) {
+        let row = await this.constRepository.findOne(key);
+        if (row) {
+            return row.Value;
         }
-        catch (err) {
-            console.error(err);
+        return null;
+    }
+    private async UpdateDbConst(key: string, value: string): Promise<void> {
+        let row = await this.constRepository.findOne(key);
+        if (row) {
+            row.Value = value;
+            await this.constRepository.save(row);
         }
     }
 }

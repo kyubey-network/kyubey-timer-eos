@@ -30,7 +30,7 @@ export class EosTransactionJob extends NestSchedule {
         //     console.log(resp);
         // })
 
-        this.dfuseService.GetActionStreamAsync({ accounts: "eosio.token", }, (message) => {
+        this.dfuseService.GetActionStreamAsync({ accounts: "eosio.token|ethsidechain", receivers: "kyubeydex.bp" }, (message) => {
 
             this.kyubeyEosTransactionService.HandlerTransfer(message);
 
