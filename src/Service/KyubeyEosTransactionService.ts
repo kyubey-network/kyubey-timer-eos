@@ -28,7 +28,7 @@ export class KyubeyEosTransactionService {
         // if (this.dfuseService.IsSomeAction(message, "sellreceipt")) {
         // }
     }
-    HandlerBuyReceipt(data: BuyReceipt, trx_id: string) {
+    async HandlerBuyReceiptAsync(data: BuyReceipt, trx_id: string, block_time: Date) {
         console.log(data)
 
         let orderId = data.id;
@@ -36,9 +36,11 @@ export class KyubeyEosTransactionService {
         let askVal = GetSymbolValue(data.ask).Value;
         let bidVal = GetSymbolValue(data.bid).Value;
         let unitPrice = data.unit_price;
-        let timestamp = data.timestamp;
-
-        this.kyubeyTransactionRepository.UpdateBuyReceiptAsync(orderId, symbol, data.account, askVal, bidVal, unitPrice, timestamp, trx_id);
+        try {
+            let row = await this.kyubeyTransactionRepository.UpdateBuyReceiptAsync(orderId, symbol, data.account, askVal, bidVal, unitPrice, block_time, trx_id);
+        } catch (err) {
+            console.error(err);
+        }
     }
     HandlerCancelBuy(message: InboundMessage) {
         // if (this.dfuseService.IsSomeAction(message, "cancelbuy")) {

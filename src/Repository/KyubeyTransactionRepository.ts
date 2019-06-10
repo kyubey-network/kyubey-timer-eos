@@ -2,13 +2,14 @@ import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Constant } from "src/Entity/constants.entity";
 import { Repository, Db } from "typeorm";
-import { DexBuyOrder } from "src/Entity/dexbuyorders";
+import { DexBuyOrder } from "src/Entity/dexbuyorders.entity";
 
 @Injectable()
 export class KyubeyTransactionRepository {
     constructor(
         @InjectRepository(Constant)
         private readonly constRepository: Repository<Constant>,
+        @InjectRepository(DexBuyOrder)
         private readonly dexBuyOrderRepository: Repository<DexBuyOrder>,
     ) { }
     async getLastSyncBlockNo() {
@@ -29,7 +30,7 @@ export class KyubeyTransactionRepository {
             await this.constRepository.save(row);
         }
     }
-    async UpdateBuyReceiptAsync(orderId: number, symbol: string, account: string, ask: number, bid: number, unitPrice: number, timestamp: number, trx_id: string): Promise<void> {
+    async UpdateBuyReceiptAsync(orderId: number, symbol: string, account: string, ask: number, bid: number, unitPrice: number, block_time: Date, trx_id: string): Promise<DexBuyOrder> {
         let row = await this.dexBuyOrderRepository.findOne({ Id: orderId, TokenId: symbol });
         if (row) {
             await this.dexBuyOrderRepository.remove(row);
@@ -41,8 +42,10 @@ export class KyubeyTransactionRepository {
         newRow.Ask = ask;
         newRow.Bid = bid;
         newRow.UnitPrice = unitPrice / 100000000.0;
-        newRow.Time = new Date(timestamp);
+        newRow.Time = block_time;
         newRow.TokenId = symbol;
+    
         await this.dexBuyOrderRepository.save(newRow);
+        return newRow;
     }
 }

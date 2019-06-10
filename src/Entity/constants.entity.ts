@@ -2,7 +2,8 @@ import { BaseEntity, Column, Entity, Index, JoinColumn, JoinTable, ManyToMany, M
 
 
 @Entity("constants")
-export class Constant {
+export class 
+Constant {
 
     @Column("varchar", {
         nullable: false,

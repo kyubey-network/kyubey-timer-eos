@@ -142,7 +142,7 @@ export class DfuseService {
 
     switch (trace.act.name) {
       case "buyreceipt":
-        this.kyubeyEosTransactionService.HandlerBuyReceipt(trace.act.data.o, trx_id);
+        this.kyubeyEosTransactionService.HandlerBuyReceiptAsync(trace.act.data.o, trx_id, new Date(trace.block_time + "Z"));
         break;
       case "sellreceipt":
         break;
