@@ -142,16 +142,33 @@ export class DfuseService {
 
     switch (trace.act.name) {
       case "buyreceipt":
-        this.kyubeyEosTransactionService.HandlerBuyReceiptAsync(trace.act.data.o, trx_id, new Date(trace.block_time + "Z"));
+        this.kyubeyEosTransactionService.HandleBuyReceiptAsync(trace.act.data.o, trx_id, new Date(trace.block_time + "Z"));
         break;
       case "sellreceipt":
-        this.kyubeyEosTransactionService.HandlerSellReceiptAsync(trace.act.data.t, trx_id, new Date(trace.block_time + "Z"));
+        this.kyubeyEosTransactionService.HandleSellReceiptAsync(trace.act.data.t, trx_id, new Date(trace.block_time + "Z"));
         break;
       case "buymatch":
-          this.kyubeyEosTransactionService.HandlerBuyMatchAsync(trace.act.data.t, trx_id, new Date(trace.block_time + "Z"));
+        this.kyubeyEosTransactionService.HandleBuyMatchAsync(trace.act.data.t, trx_id, new Date(trace.block_time + "Z"));
         break;
       case "sellmatch":
-          this.kyubeyEosTransactionService.HandlerSellMatchAsync(trace.act.data.t, trx_id, new Date(trace.block_time + "Z"));
+        this.kyubeyEosTransactionService.HandleSellMatchAsync(trace.act.data.t, trx_id, new Date(trace.block_time + "Z"));
+        break;
+      case "cancelbuy":
+        this.kyubeyEosTransactionService.HandleCancelBuyAsync(trace.act.data, trx_id, new Date(trace.block_time + "Z"));
+        break;
+      case "cancelsell":
+        this.kyubeyEosTransactionService.HandleCancelSellAsync(trace.act.data, trx_id, new Date(trace.block_time + "Z"));
+        break;
+      case "clean":
+        this.kyubeyEosTransactionService.HandleClearAsync(trace.act.data, trx_id, new Date(trace.block_time + "Z"));
+        break;
+      case "removefav":
+        this.kyubeyEosTransactionService.HandleRemoveFavAsync(trace.act.data, trace.act.authorization[0].actor, trx_id, new Date(trace.block_time + "Z"));
+        break;
+      case "addfav":
+        this.kyubeyEosTransactionService.HandleAddFavAsync(trace.act.data, trace.act.authorization[0].actor, trx_id, new Date(trace.block_time + "Z"));
+        break;
+      default:
         break;
     }
 

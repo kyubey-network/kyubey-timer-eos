@@ -1,10 +1,12 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Constant } from "src/Entity/constants.entity";
-import { Repository, Db } from "typeorm";
+import { Repository, Db, Connection } from "typeorm";
 import { DexBuyOrder } from "src/Entity/dexbuyorders.entity";
 import { DexSellOrder } from "src/Entity/dexsellorders.entity";
 import { MatchReceipt } from "src/Entity/matchreceipts.entity";
+import { Favorite } from "src/Entity/favorites.entity";
+import { Token } from "src/Entity/tokens.entity";
 
 @Injectable()
 export class KyubeyTransactionRepository {
@@ -17,6 +19,11 @@ export class KyubeyTransactionRepository {
         private readonly dexSellOrderRepository: Repository<DexSellOrder>,
         @InjectRepository(MatchReceipt)
         private readonly matchReceiptRepository: Repository<MatchReceipt>,
+        @InjectRepository(Favorite)
+        private readonly favoriteRepository: Repository<Favorite>,
+        @InjectRepository(Token)
+        private readonly tokenRepository: Repository<Token>,
+        private readonly connection: Connection
     ) { }
     async getLastSyncBlockNo() {
         let val = await this.GetDbConst("sync_block_no");
@@ -123,5 +130,55 @@ export class KyubeyTransactionRepository {
 
         await this.matchReceiptRepository.save(newRow);
         return newRow;
+    }
+    async CancelBuyAsync(orderId: number, symbol: string, block_time: Date, trx_id: string): Promise<void> {
+        let row = await this.dexBuyOrderRepository.findOne({ Id: orderId, TokenId: symbol });
+        if (row) {
+            await this.dexBuyOrderRepository.remove(row);
+        }
+    }
+    async CancelSellAsync(orderId: number, symbol: string, block_time: Date, trx_id: string): Promise<void> {
+        let row = await this.dexSellOrderRepository.findOne({ Id: orderId, TokenId: symbol });
+        if (row) {
+            await this.dexSellOrderRepository.remove(row);
+        }
+    }
+    async ClearAsync(symbol: string, block_time: Date, trx_id: string): Promise<void> {
+        this.connection
+            .createQueryBuilder()
+            .delete()
+            .from(DexBuyOrder)
+            .where("TokenId=:symbol", { symbol })
+            .execute();
+
+        this.connection
+            .createQueryBuilder()
+            .delete()
+            .from(DexSellOrder)
+            .where("TokenId=:symbol", { symbol })
+            .execute();
+    }
+    async AddFavAsync(account: string, symbol: string, block_time: Date, trx_id: string): Promise<void> {
+        let token = await this.tokenRepository.findOne({ Id: symbol });
+        if (token) {
+            let row = await this.favoriteRepository.findOne({ Account: account, Token: token })
+            if (!row) {
+                let newRow = new Favorite();
+
+                newRow.Account = account;
+                newRow.Token = token;
+
+                await this.favoriteRepository.save(newRow);
+            }
+        }
+    }
+    async RemoveFavAsync(account: string, symbol: string, block_time: Date, trx_id: string): Promise<void> {
+        let token = await this.tokenRepository.findOne({ Id: symbol });
+        if (token) {
+            let row = await this.favoriteRepository.findOne({ Account: account, Token: token })
+            if (row) {
+                await this.favoriteRepository.remove(row);
+            }
+        }
     }
 }

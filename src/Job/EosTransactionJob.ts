@@ -8,7 +8,7 @@ export class EosTransactionJob extends NestSchedule {
     constructor(
         private readonly dfuseService: DfuseService,
         //private readonly kyubeyEosTransactionService: KyubeyEosTransactionService
-        ) {
+    ) {
         super();
     }
     @Cron('0 0 2 * *', {
@@ -32,7 +32,7 @@ export class EosTransactionJob extends NestSchedule {
         // })
 
         //this.dfuseService.GetActionStreamAsync({ accounts: "eosio.token|ethsidechain",/**  receivers: "kyubeydex.bp",*/action_names:"sellmatch|buyreceipt" }, (message) => {
-        this.dfuseService.GetActionStreamAsync({ accounts: "kyubeydex.bp",action_names: "sellmatch|buyreceipt|sellreceipt|buymatch" }, (message) => {
+        this.dfuseService.GetActionStreamAsync({ accounts: "kyubeydex.bp", action_names: "sellmatch|sellreceipt|buymatch|buyreceipt|addfav|removefav|clean|cancelsell|cancelbuy" }, (message) => {
 
             //this.kyubeyEosTransactionService.HandlerTransfer(message);
 

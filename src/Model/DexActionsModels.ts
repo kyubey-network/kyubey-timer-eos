@@ -36,3 +36,25 @@ export declare type SellMatch = {
     asker: string;
     bidder: string;
 };
+
+export declare type CancelBuy = {
+    id: number;
+    symbol: string;
+};
+
+export declare type CancelSell = {
+    id: number;
+    symbol: string;
+};
+
+export declare type Clear = {
+    symbol: string;
+};
+
+export declare type AddFav = {
+    symbol: string;
+};
+
+export declare type RemoveFav = {
+    symbol: string;
+};

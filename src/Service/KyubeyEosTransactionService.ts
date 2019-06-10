@@ -1,7 +1,7 @@
 import { InboundMessage } from "@dfuse/client";
 //import { DfuseService } from "./DfuseService";
 import { Injectable } from "@nestjs/common";
-import { SellReceipt, BuyReceipt, BuyMatch, SellMatch } from "src/Model/DexActionsModels";
+import { SellReceipt, BuyReceipt, BuyMatch, SellMatch, CancelBuy, CancelSell, Clear, AddFav, RemoveFav } from "src/Model/DexActionsModels";
 import { GetSymbolValue } from "src/Lib/Utls";
 import { KyubeyTransactionRepository } from "src/Repository/KyubeyTransactionRepository";
 
@@ -16,9 +16,47 @@ export class KyubeyEosTransactionService {
         //     console.log(`${from} -> ${to} ${quantity} (${memo})`);
         // }
     }
-    async HandlerSellMatchAsync(data: SellMatch, trx_id: string, block_time: Date) {
-        console.log(data)
-
+    async HandleRemoveFavAsync(data: RemoveFav, account: string, trx_id: string, block_time: Date) {
+        const { symbol } = data;
+        try {
+            await this.kyubeyTransactionRepository.RemoveFavAsync(account, symbol, block_time, trx_id);
+        } catch (err) {
+            console.error(err);
+        }
+    }
+    async HandleAddFavAsync(data: AddFav, account: string, trx_id: string, block_time: Date) {
+        const { symbol } = data;
+        try {
+            await this.kyubeyTransactionRepository.AddFavAsync(account, symbol, block_time, trx_id);
+        } catch (err) {
+            console.error(err);
+        }
+    }
+    async HandleClearAsync(data: Clear, trx_id: string, block_time: Date) {
+        const { symbol } = data;
+        try {
+            await this.kyubeyTransactionRepository.ClearAsync(symbol, block_time, trx_id);
+        } catch (err) {
+            console.error(err);
+        }
+    }
+    async HandleCancelBuyAsync(data: CancelBuy, trx_id: string, block_time: Date) {
+        const { id, symbol } = data;
+        try {
+            let row = await this.kyubeyTransactionRepository.CancelBuyAsync(id, symbol, block_time, trx_id);
+        } catch (err) {
+            console.error(err);
+        }
+    }
+    async HandleCancelSellAsync(data: CancelSell, trx_id: string, block_time: Date) {
+        const { id, symbol } = data;
+        try {
+            let row = await this.kyubeyTransactionRepository.CancelSellAsync(id, symbol, block_time, trx_id);
+        } catch (err) {
+            console.error(err);
+        }
+    }
+    async HandleSellMatchAsync(data: SellMatch, trx_id: string, block_time: Date) {
         const { id, asker, bidder, unit_price } = data;
         let symbol = GetSymbolValue(data.bid).Symbol;
         let askVal = GetSymbolValue(data.ask).Value;
@@ -30,9 +68,7 @@ export class KyubeyEosTransactionService {
             console.error(err);
         }
     }
-    async HandlerBuyMatchAsync(data: BuyMatch, trx_id: string, block_time: Date) {
-        console.log(data)
-
+    async HandleBuyMatchAsync(data: BuyMatch, trx_id: string, block_time: Date) {
         const { id, asker, bidder, unit_price } = data;
         let symbol = GetSymbolValue(data.ask).Symbol;
         let askVal = GetSymbolValue(data.ask).Value;
@@ -44,9 +80,7 @@ export class KyubeyEosTransactionService {
             console.error(err);
         }
     }
-    async HandlerSellReceiptAsync(data: SellReceipt, trx_id: string, block_time: Date) {
-        console.log(data)
-
+    async HandleSellReceiptAsync(data: SellReceipt, trx_id: string, block_time: Date) {
         let orderId = data.id;
         let symbol = GetSymbolValue(data.ask).Symbol;
         let askVal = GetSymbolValue(data.ask).Value;
@@ -59,9 +93,7 @@ export class KyubeyEosTransactionService {
             console.error(err);
         }
     }
-    async HandlerBuyReceiptAsync(data: BuyReceipt, trx_id: string, block_time: Date) {
-        console.log(data)
-
+    async HandleBuyReceiptAsync(data: BuyReceipt, trx_id: string, block_time: Date) {
         let orderId = data.id;
         let symbol = GetSymbolValue(data.ask).Symbol;
         let askVal = GetSymbolValue(data.ask).Value;
@@ -74,17 +106,4 @@ export class KyubeyEosTransactionService {
             console.error(err);
         }
     }
-    HandlerCancelBuy(message: InboundMessage) {
-        // if (this.dfuseService.IsSomeAction(message, "cancelbuy")) {
-        // }
-    }
-    HandlerCancelSell(message: InboundMessage) {
-        // if (this.dfuseService.IsSomeAction(message, "cancelsell")) {
-        // }
-    }
-    HandlerClean(message: InboundMessage) {
-        // if (this.dfuseService.IsSomeAction(message, "clean")) {
-        // }
-    }
-
 }
