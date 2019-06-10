@@ -1,7 +1,7 @@
 import { InboundMessage } from "@dfuse/client";
 //import { DfuseService } from "./DfuseService";
 import { Injectable } from "@nestjs/common";
-import { SellReceipt, BuyReceipt } from "src/Model/DexActionsModels";
+import { SellReceipt, BuyReceipt, BuyMatch } from "src/Model/DexActionsModels";
 import { GetSymbolValue } from "src/Lib/Utls";
 import { KyubeyTransactionRepository } from "src/Repository/KyubeyTransactionRepository";
 
@@ -20,15 +20,25 @@ export class KyubeyEosTransactionService {
         // if (this.dfuseService.IsSomeAction(message, "sellmatch")) {
         // }
     }
-    HandlerBuyMatchAsync(message: InboundMessage) {
-        // if (this.dfuseService.IsSomeAction(message, "buymatch")) {
-        // }
+    async HandlerBuyMatchAsync(data: BuyMatch, trx_id: string, block_time: Date) {
+        console.log(data)
+
+        const { id, asker, bidder, unit_price } = data;
+        let symbol = GetSymbolValue(data.ask).Symbol;
+        let askVal = GetSymbolValue(data.ask).Value;
+        let bidVal = GetSymbolValue(data.bid).Value;
+
+        try {
+            let row = await this.kyubeyTransactionRepository.UpdateBuyMatchAsync(id, symbol, askVal, bidVal, asker, bidder, unit_price, block_time, trx_id);
+        } catch (err) {
+            console.error(err);
+        }
     }
     async HandlerSellReceiptAsync(data: SellReceipt, trx_id: string, block_time: Date) {
         console.log(data)
 
         let orderId = data.id;
-        let symbol = GetSymbolValue(data.bid).Symbol;
+        let symbol = GetSymbolValue(data.ask).Symbol;
         let askVal = GetSymbolValue(data.ask).Value;
         let bidVal = GetSymbolValue(data.bid).Value;
         let unitPrice = data.unit_price;

@@ -4,6 +4,7 @@ import { Constant } from "src/Entity/constants.entity";
 import { Repository, Db } from "typeorm";
 import { DexBuyOrder } from "src/Entity/dexbuyorders.entity";
 import { DexSellOrder } from "src/Entity/dexsellorders.entity";
+import { MatchReceipt } from "src/Entity/matchreceipts.entity";
 
 @Injectable()
 export class KyubeyTransactionRepository {
@@ -14,6 +15,8 @@ export class KyubeyTransactionRepository {
         private readonly dexBuyOrderRepository: Repository<DexBuyOrder>,
         @InjectRepository(DexSellOrder)
         private readonly dexSellOrderRepository: Repository<DexSellOrder>,
+        @InjectRepository(MatchReceipt)
+        private readonly matchReceiptRepository: Repository<MatchReceipt>,
     ) { }
     async getLastSyncBlockNo() {
         let val = await this.GetDbConst("sync_block_no");
@@ -69,6 +72,31 @@ export class KyubeyTransactionRepository {
         newRow.TransactionId = trx_id;
 
         await this.dexSellOrderRepository.save(newRow);
+        return newRow;
+    }
+    async UpdateBuyMatchAsync(orderId: number, symbol: string, ask: number, bid: number, asker: string, bidder: string, unitPrice: number, block_time: Date, trx_id: string): Promise<MatchReceipt> {
+        let row = await this.dexSellOrderRepository.findOne({ Id: orderId, TokenId: symbol });
+        if (row) {
+            row.Bid -= ask;
+            row.Ask -= bid;
+            if (row.Ask <= 0 || row.Bid <= 0) {
+                await this.dexSellOrderRepository.remove(row);
+            }
+        }
+
+        let newRow = new MatchReceipt();
+
+        newRow.Ask = ask;
+        newRow.Bid = bid;
+        newRow.Asker = asker;
+        newRow.Bidder = bidder;
+        newRow.Time = block_time;
+        newRow.TokenId = symbol;
+        newRow.TransactionId = trx_id;
+        newRow.UnitPrice = unitPrice;
+        newRow.IsSellMatch = false;
+
+        await this.matchReceiptRepository.save(newRow);
         return newRow;
     }
 }

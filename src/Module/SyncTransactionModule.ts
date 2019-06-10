@@ -8,12 +8,13 @@ import { KyubeyTransactionRepository } from "src/Repository/KyubeyTransactionRep
 import { EosTransactionJob } from "src/Job/EosTransactionJob";
 import { DexBuyOrder } from "src/Entity/dexbuyorders.entity";
 import { DexSellOrder } from "src/Entity/dexsellorders.entity";
+import { MatchReceipt } from "src/Entity/matchreceipts.entity";
 
 @Module({
     imports: [
 
         ScheduleModule.register(),
-        TypeOrmModule.forFeature([Constant, DexBuyOrder, DexSellOrder]),
+        TypeOrmModule.forFeature([Constant, DexBuyOrder, DexSellOrder, MatchReceipt]),
     ],
     providers: [
         DfuseService,

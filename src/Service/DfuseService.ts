@@ -148,6 +148,7 @@ export class DfuseService {
         this.kyubeyEosTransactionService.HandlerSellReceiptAsync(trace.act.data.t, trx_id, new Date(trace.block_time + "Z"));
         break;
       case "buymatch":
+          this.kyubeyEosTransactionService.HandlerBuyMatchAsync(trace.act.data.t, trx_id, new Date(trace.block_time + "Z"));
         break;
       case "sellmatch":
         break;
