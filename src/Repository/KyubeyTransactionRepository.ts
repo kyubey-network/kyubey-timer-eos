@@ -93,8 +93,33 @@ export class KyubeyTransactionRepository {
         newRow.Time = block_time;
         newRow.TokenId = symbol;
         newRow.TransactionId = trx_id;
-        newRow.UnitPrice = unitPrice;
+        newRow.UnitPrice = unitPrice / 100000000.0;
         newRow.IsSellMatch = false;
+
+        await this.matchReceiptRepository.save(newRow);
+        return newRow;
+    }
+    async UpdateSellMatchAsync(orderId: number, symbol: string, ask: number, bid: number, asker: string, bidder: string, unitPrice: number, block_time: Date, trx_id: string): Promise<MatchReceipt> {
+        let row = await this.dexBuyOrderRepository.findOne({ Id: orderId, TokenId: symbol });
+        if (row) {
+            row.Bid -= ask;
+            row.Ask -= bid;
+            if (row.Ask <= 0 || row.Bid <= 0) {
+                await this.dexBuyOrderRepository.remove(row);
+            }
+        }
+
+        let newRow = new MatchReceipt();
+
+        newRow.Ask = ask;
+        newRow.Bid = bid;
+        newRow.Asker = asker;
+        newRow.Bidder = bidder;
+        newRow.Time = block_time;
+        newRow.TokenId = symbol;
+        newRow.TransactionId = trx_id;
+        newRow.UnitPrice = unitPrice / 100000000.0;
+        newRow.IsSellMatch = true;
 
         await this.matchReceiptRepository.save(newRow);
         return newRow;

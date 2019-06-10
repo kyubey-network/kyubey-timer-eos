@@ -151,8 +151,8 @@ export class DfuseService {
           this.kyubeyEosTransactionService.HandlerBuyMatchAsync(trace.act.data.t, trx_id, new Date(trace.block_time + "Z"));
         break;
       case "sellmatch":
+          this.kyubeyEosTransactionService.HandlerSellMatchAsync(trace.act.data.t, trx_id, new Date(trace.block_time + "Z"));
         break;
-
     }
 
     if (block_num > this.lastCommittedBlockNum) {

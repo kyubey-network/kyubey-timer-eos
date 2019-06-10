@@ -11,7 +11,8 @@ export class MatchReceipt {
         nullable: false,
         primary: true,
         length: 64,
-        name: "Id"
+        name: "Id",
+        generated: "uuid"
     })
     Id: string;
 
