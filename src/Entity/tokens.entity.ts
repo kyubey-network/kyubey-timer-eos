@@ -1,5 +1,4 @@
 import { BaseEntity, Column, Entity, Index, JoinColumn, JoinTable, ManyToMany, ManyToOne, OneToMany, OneToOne, PrimaryColumn, PrimaryGeneratedColumn, RelationId } from "typeorm";
-import { alertrules } from "./alertrules";
 import { Favorite } from "./favorites.entity";
 
 
