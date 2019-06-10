@@ -32,7 +32,7 @@ export class EosTransactionJob extends NestSchedule {
         // })
 
         //this.dfuseService.GetActionStreamAsync({ accounts: "eosio.token|ethsidechain",/**  receivers: "kyubeydex.bp",*/action_names:"sellmatch|buyreceipt" }, (message) => {
-        this.dfuseService.GetActionStreamAsync({ accounts: "kyubeydex.bp",action_names: "sellmatch|buyreceipt" }, (message) => {
+        this.dfuseService.GetActionStreamAsync({ accounts: "kyubeydex.bp",action_names: "sellmatch|buyreceipt|sellreceipt|buymatch" }, (message) => {
 
             //this.kyubeyEosTransactionService.HandlerTransfer(message);
 

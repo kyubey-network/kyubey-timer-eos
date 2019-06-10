@@ -1,11 +1,11 @@
-import { BaseEntity, Column, Entity, Index, JoinColumn, JoinTable, ManyToMany, ManyToOne, OneToMany, OneToOne, PrimaryColumn, PrimaryGeneratedColumn, RelationId, Transaction } from "typeorm";
+import { BaseEntity, Column, Entity, Index, JoinColumn, JoinTable, ManyToMany, ManyToOne, OneToMany, OneToOne, PrimaryColumn, PrimaryGeneratedColumn, RelationId } from "typeorm";
 
 
-@Entity("dexbuyorders")
-@Index("IX_DexBuyOrders_Time", ["Time",])
-@Index("IX_DexBuyOrders_TokenId", ["TokenId",])
-@Index("IX_DexBuyOrders_UnitPrice", ["UnitPrice",])
-export class DexBuyOrder {
+@Entity("dexsellorders")
+@Index("IX_DexSellOrders_Time", ["Time",])
+@Index("IX_DexSellOrders_TokenId", ["TokenId",])
+@Index("IX_DexSellOrders_UnitPrice", ["UnitPrice",])
+export class DexSellOrder {
 
     @Column("int", {
         nullable: false,
@@ -22,6 +22,7 @@ export class DexBuyOrder {
     })
     Account: string | null;
 
+
     @Column("varchar", {
         nullable: true,
         length: 100,
@@ -29,7 +30,7 @@ export class DexBuyOrder {
     })
     TransactionId: string | null;
 
-
+    
     @Column("varchar", {
         nullable: false,
         primary: true,
