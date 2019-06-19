@@ -86,7 +86,6 @@ export class DfuseService {
       action_trace: this.onAction,
       progress: this.onProgress
     })
-    let lastSyncBlockNo = await this.kyubeyTransactionRepository.getLastSyncBlockNo();
 
     this.stream = await this.dfuseClient.streamActionTraces(
       data,
@@ -133,44 +132,14 @@ export class DfuseService {
     //this.commit(block_id, 61006380)
   }
 
-  private onAction = (message: ActionTraceInboundMessage<any>) => {
+  private onAction = async (message: ActionTraceInboundMessage<any>) => {
     /**
      * Once a message from a block ahead of last committed block is seen,
      * commit all changes up to this point.
      */
     const { block_id, block_num, trx_id, trace } = message.data;
 
-    switch (trace.act.name) {
-      case "buyreceipt":
-        this.kyubeyEosTransactionService.HandleBuyReceiptAsync(trace.act.data.o, trx_id, new Date(trace.block_time + "Z"));
-        break;
-      case "sellreceipt":
-        this.kyubeyEosTransactionService.HandleSellReceiptAsync(trace.act.data.t, trx_id, new Date(trace.block_time + "Z"));
-        break;
-      case "buymatch":
-        this.kyubeyEosTransactionService.HandleBuyMatchAsync(trace.act.data.t, trx_id, new Date(trace.block_time + "Z"));
-        break;
-      case "sellmatch":
-        this.kyubeyEosTransactionService.HandleSellMatchAsync(trace.act.data.t, trx_id, new Date(trace.block_time + "Z"));
-        break;
-      case "cancelbuy":
-        this.kyubeyEosTransactionService.HandleCancelBuyAsync(trace.act.data, trx_id, new Date(trace.block_time + "Z"));
-        break;
-      case "cancelsell":
-        this.kyubeyEosTransactionService.HandleCancelSellAsync(trace.act.data, trx_id, new Date(trace.block_time + "Z"));
-        break;
-      case "clean":
-        this.kyubeyEosTransactionService.HandleClearAsync(trace.act.data, trx_id, new Date(trace.block_time + "Z"));
-        break;
-      case "removefav":
-        this.kyubeyEosTransactionService.HandleRemoveFavAsync(trace.act.data, trace.act.authorization[0].actor, trx_id, new Date(trace.block_time + "Z"));
-        break;
-      case "addfav":
-        this.kyubeyEosTransactionService.HandleAddFavAsync(trace.act.data, trace.act.authorization[0].actor, trx_id, new Date(trace.block_time + "Z"));
-        break;
-      default:
-        break;
-    }
+    await this.kyubeyEosTransactionService.HandleActionTraceAsync(trace);
 
     if (block_num > this.lastCommittedBlockNum) {
       console.log()

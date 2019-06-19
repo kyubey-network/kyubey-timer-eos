@@ -25,9 +25,12 @@ export class KyubeyTransactionRepository {
         private readonly tokenRepository: Repository<Token>,
         private readonly connection: Connection
     ) { }
-    async getLastSyncBlockNo() {
+    async GetLastSyncBlockNo() {
         let val = await this.GetDbConst("sync_block_no");
         return parseInt(val);
+    }
+    async SetLastSyncBlockNo(value: number) {
+        await this.SetDbConst("sync_block_no", value.toString());
     }
     private async GetDbConst(key: string) {
         let row = await this.constRepository.findOne(key);
@@ -35,6 +38,13 @@ export class KyubeyTransactionRepository {
             return row.Value;
         }
         return null;
+    }
+    private async SetDbConst(key: string, value: string) {
+        let row = await this.constRepository.findOne(key);
+        if (row) {
+            row.Value = value;
+            await this.constRepository.save(row);
+        }
     }
     private async UpdateDbConst(key: string, value: string): Promise<void> {
         let row = await this.constRepository.findOne(key);
@@ -81,7 +91,7 @@ export class KyubeyTransactionRepository {
         await this.dexSellOrderRepository.save(newRow);
         return newRow;
     }
-    async UpdateBuyMatchAsync(orderId: number, symbol: string, ask: number, bid: number, asker: string, bidder: string, unitPrice: number, block_time: Date, trx_id: string): Promise<MatchReceipt> {
+    async UpdateBuyMatchAsync(orderId: number, symbol: string, ask: number, bid: number, asker: string, bidder: string, unitPrice: number, block_time: Date, trx_id: string, act_digest: string): Promise<MatchReceipt> {
         let row = await this.dexSellOrderRepository.findOne({ Id: orderId, TokenId: symbol });
         if (row) {
             row.Bid -= ask;
@@ -102,11 +112,12 @@ export class KyubeyTransactionRepository {
         newRow.TransactionId = trx_id;
         newRow.UnitPrice = unitPrice / 100000000.0;
         newRow.IsSellMatch = false;
+        newRow.ActDigest = act_digest;
 
         await this.matchReceiptRepository.save(newRow);
         return newRow;
     }
-    async UpdateSellMatchAsync(orderId: number, symbol: string, ask: number, bid: number, asker: string, bidder: string, unitPrice: number, block_time: Date, trx_id: string): Promise<MatchReceipt> {
+    async UpdateSellMatchAsync(orderId: number, symbol: string, ask: number, bid: number, asker: string, bidder: string, unitPrice: number, block_time: Date, trx_id: string, act_digest: string): Promise<MatchReceipt> {
         let row = await this.dexBuyOrderRepository.findOne({ Id: orderId, TokenId: symbol });
         if (row) {
             row.Bid -= ask;
@@ -125,6 +136,7 @@ export class KyubeyTransactionRepository {
         newRow.Time = block_time;
         newRow.TokenId = symbol;
         newRow.TransactionId = trx_id;
+        newRow.ActDigest = act_digest;
         newRow.UnitPrice = unitPrice / 100000000.0;
         newRow.IsSellMatch = true;
 
@@ -148,14 +160,14 @@ export class KyubeyTransactionRepository {
             .createQueryBuilder()
             .delete()
             .from(DexBuyOrder)
-            .where("TokenId=:symbol", { symbol })
+            .where("TokenId=:symbol and Time<=:block_time", { symbol, block_time })
             .execute();
 
         this.connection
             .createQueryBuilder()
             .delete()
             .from(DexSellOrder)
-            .where("TokenId=:symbol", { symbol })
+            .where("TokenId=:symbol and Time<=:block_time", { symbol, block_time })
             .execute();
     }
     async AddFavAsync(account: string, symbol: string, block_time: Date, trx_id: string): Promise<void> {
@@ -173,12 +185,11 @@ export class KyubeyTransactionRepository {
         }
     }
     async RemoveFavAsync(account: string, symbol: string, block_time: Date, trx_id: string): Promise<void> {
-        let token = await this.tokenRepository.findOne({ Id: symbol });
-        if (token) {
-            let row = await this.favoriteRepository.findOne({ Account: account, Token: token })
-            if (row) {
-                await this.favoriteRepository.remove(row);
-            }
-        }
+        this.connection
+            .createQueryBuilder()
+            .delete()
+            .from(Favorite)
+            .where("Account=:account and TokenId=:symbol", { account, symbol })
+            .execute();
     }
 }

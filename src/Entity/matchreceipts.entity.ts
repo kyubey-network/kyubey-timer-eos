@@ -28,6 +28,14 @@ export class MatchReceipt {
     @Column("varchar", {
         nullable: true,
         length: 100,
+        name: "ActDigest"
+    })
+    ActDigest: string | null;
+
+
+    @Column("varchar", {
+        nullable: true,
+        length: 100,
         name: "TransactionId"
     })
     TransactionId: string | null;

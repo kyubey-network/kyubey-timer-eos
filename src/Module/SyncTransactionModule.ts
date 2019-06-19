@@ -11,10 +11,10 @@ import { DexSellOrder } from "src/Entity/dexsellorders.entity";
 import { MatchReceipt } from "src/Entity/matchreceipts.entity";
 import { Token } from "src/Entity/tokens.entity";
 import { Favorite } from "src/Entity/favorites.entity";
+import { DfuseApiService } from "src/Service/DfuseApiService";
 
 @Module({
     imports: [
-
         ScheduleModule.register(),
         TypeOrmModule.forFeature([Constant, DexBuyOrder, DexSellOrder, MatchReceipt, Token, Favorite]),
     ],
@@ -23,6 +23,7 @@ import { Favorite } from "src/Entity/favorites.entity";
         EosTransactionJob,
         KyubeyEosTransactionService,
         KyubeyTransactionRepository,
+        DfuseApiService
     ],
 })
 export class SyncTranscationModule {
