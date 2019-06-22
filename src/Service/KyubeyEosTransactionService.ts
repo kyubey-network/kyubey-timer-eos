@@ -130,7 +130,7 @@ export class KyubeyEosTransactionService {
     }
     async HandleSellReceiptAsync(data: SellReceipt, trx_id: string, block_time: Date) {
         let orderId = data.id;
-        let symbol = GetSymbolValue(data.ask).Symbol;
+        let symbol = GetSymbolValue(data.bid).Symbol;
         let askVal = GetSymbolValue(data.ask).Value;
         let bidVal = GetSymbolValue(data.bid).Value;
         let unitPrice = data.unit_price;
