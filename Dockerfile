@@ -11,5 +11,7 @@ CMD npm run start
 
 # docker build . -t="kyubey_eos_watcher"
 # docker run -d --restart=always --name="kyubey_watcher_test" -v /usr/local/kyubey/ormconfig_test.json:/usr/src/app/ormconfig.json kyubey_eos_watcher
+# docker run -d --restart=always --name="kyubey_watcher_prod" -v /usr/local/kyubey/ormconfig_prod.json:/usr/src/app/ormconfig.json kyubey_eos_watcher
+# ormconfig_prod.json
 # docker update kyubey_watcher_test --restart=always
 # docker logs kyubey_watcher_test
